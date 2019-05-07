@@ -1,0 +1,14 @@
+.w-100 {
+    width: 100%;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+    justify-content: space-between;
+
+    .form-button {
+        width: 30%;
+    }
+}

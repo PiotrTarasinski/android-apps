@@ -4,6 +4,10 @@ import { IonicModule } from '@ionic/angular';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatToolbarModule } from '@angular/material/toolbar';
+
 import { HomePage } from './home.page';
 
 @NgModule({
@@ -11,6 +15,9 @@ import { HomePage } from './home.page';
     CommonModule,
     FormsModule,
     IonicModule,
+    MatButtonModule,
+    MatIconModule,
+    MatToolbarModule,
     RouterModule.forChild([
       {
         path: '',
@@ -20,4 +27,4 @@ import { HomePage } from './home.page';
   ],
   declarations: [HomePage]
 })
-export class HomePageModule {}
+export class HomePageModule { }

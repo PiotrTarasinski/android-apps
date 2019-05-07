@@ -1,14 +1,26 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>
-      Ionic Blank
-    </ion-title>
-  </ion-toolbar>
+  <mat-toolbar color="primary">
+    <mat-toolbar-row>
+      <span>Baza telefonów</span>
+      <button mat-button class="toolbar-icon" *ngIf="selectMode" (click)="deletePhones()">
+        Usuń <mat-icon aria-label="delete icon">delete</mat-icon>
+      </button>
+      <button mat-button class="toolbar-icon" *ngIf="!selectMode" (click)="addPhone()">
+        Dodaj <mat-icon aria-label="add icon">add</mat-icon>
+      </button>
+    </mat-toolbar-row>
+  </mat-toolbar>
 </ion-header>
+
+
 
 <ion-content>
   <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+    <button mat-raised-button color="basic" *ngFor="let phone of phoneList" class="phone-item" (press)="onPress(phone)"
+      (tap)="onTap(phone)" [ngClass]="{'mat-primary': selectedPhones.includes(phone)}">
+      <p><i class="fas fa-mobile-alt"></i></p>
+      <p>{{phone.producent}}</p>
+      <p>{{phone.model}}</p>
+    </button>
   </div>
 </ion-content>

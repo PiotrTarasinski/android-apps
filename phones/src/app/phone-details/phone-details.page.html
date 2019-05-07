@@ -1,9 +1,51 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>phone-details</ion-title>
-  </ion-toolbar>
+  <mat-toolbar color="primary">
+    <mat-toolbar-row>
+      <span>{{editMode ? 'Edytuj telefon' : 'Dodaj telefon'}}</span>
+    </mat-toolbar-row>
+  </mat-toolbar>
 </ion-header>
 
 <ion-content>
-
+  <div class="ion-padding">
+    <form [formGroup]="phoneForm">
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Producent</mat-label>
+        <input type="text" matInput formControlName="producent" placeholder="Podaj producenta">
+        <mat-error *ngIf="phoneForm.get('producent').hasError('required')">Podaj producenta!</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Model</mat-label>
+        <input type="text" matInput formControlName="model" placeholder="Podaj model">
+        <mat-error *ngIf="phoneForm.get('model').hasError('required')">Podaj model!</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Wersja Androida</mat-label>
+        <input type="text" matInput formControlName="wersja" placeholder="Podaj wersje Androida">
+        <mat-error *ngIf="phoneForm.get('wersja').hasError('required')">Podaj wersje Androida!</mat-error>
+      </mat-form-field>
+      <mat-form-field appearance="outline" class="w-100">
+        <mat-label>Adres WWW</mat-label>
+        <input type="text" matInput formControlName="www" placeholder="Podaj adres">
+        <mat-error *ngIf="phoneForm.get('www').hasError('pattern')">Niepoprawny adres!</mat-error>
+      </mat-form-field>
+      <div class="button-container">
+        <button mat-raised-button color="basic" type="button"
+          disabled="{{phoneForm.get('www').hasError('pattern') || phoneForm.get('www').value == ''}}"
+          class="form-button" (click)="openLink()">
+          WWW
+        </button>
+        <button mat-raised-button color="basic" type="button" class="form-button" (click)="cancel()">
+          Anuluj
+        </button>
+        <button mat-raised-button color="basic" *ngIf="!editMode" class="form-button" (click)="addPhone()">
+          Dodaj
+        </button>
+        <button mat-raised-button color="basic" *ngIf="editMode" type="submit" class="form-button"
+          (click)="editPhone()">
+          Zapisz
+        </button>
+      </div>
+    </form>
+  </div>
 </ion-content>
