@@ -1,6 +1,8 @@
 {
   "name": "phones",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular",
   "id": "9aecb791"
 }
