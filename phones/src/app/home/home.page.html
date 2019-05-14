@@ -16,6 +16,10 @@
 
 <ion-content>
   <div class="ion-padding">
+    <div *ngIf="phoneList.length === 0" class="empty-info">
+      <h2>Lista telefonów pusta</h2>
+      <button mat-fab color="primary" *ngIf="!selectMode" (click)="addPhone()">Dodaj</button>
+    </div>
     <button mat-raised-button color="basic" *ngFor="let phone of phoneList" class="phone-item" (press)="onPress(phone)"
       (tap)="onTap(phone)" [ngClass]="{'mat-primary': selectedPhones.includes(phone)}">
       <p><i class="fas fa-mobile-alt"></i></p>
