@@ -9,45 +9,50 @@ import { phone } from '../models/phone';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage {
   selectMode: boolean = false;
   phoneList: phone[] = [];
   selectedPhones: phone[] = [];
-  dbReady: boolean = false;
 
   constructor(
+    private databaseService: DatabaseService,
     private navController: NavController,
     private phonesService: PhonesService,
-    private databaseService: DatabaseService
   ) { }
 
-  ngOnInit() {
+  ionViewWillEnter() {
     this.selectMode = false;
-    this.getDatabaseState();
+    this.databaseService.getDatabaseState().subscribe(ready => {
+      if (ready) {
+        this.databaseService.getPhones().subscribe(phones => {
+          this.phoneList = phones;
+          console.log("phones changed: ",phones);
+        });
+      } else {
+        this.databaseService.getPhones().subscribe(phones => {
+          this.phoneList = phones;
+          console.log("phones changed kurwa: ", phones);
+        });
+      }
+    });
   }
 
-  getDatabaseState() {
-    this.databaseService.getDatabaseState().subscribe(dbReady => {
-      this.dbReady = dbReady;
-      console.log('is db ready', dbReady);
-      // if (dbReady) this.getPhoneList();
-      this.getPhoneList();
-    });
-  }
+  // getDatabaseState() {
+  //   this.databaseService.getDatabaseState().subscribe(dbReady => {
+  //     this.dbReady = dbReady;
+  //     console.log('is db ready', dbReady);
+  //     // if (dbReady) this.getPhoneList();
+  //     this.getPhoneList();
+  //   });
+  // }
   
-  getPhoneList() {
-    // if (this.dbReady) {
-      //   this.databaseService.getPhones().subscribe(phoneList => (this.phoneList = phoneList));
-      //   console.log('baza zaladowana')
-      // } else {
-        //   console.log('baza niegotowa');
-        // }
-    console.log('is phones fetching', true);
-    this.databaseService.getPhones().subscribe(phones => {
-      this.phoneList = phones;
-      console.log('phone list', phones);
-    });
-  }
+  // getPhoneList() {
+  //   console.log('is phones fetching', true);
+  //   this.databaseService.getPhones().subscribe(phones => {
+  //     this.phoneList = phones;
+  //     console.log('phone list', phones);
+  //   });
+  // }
 
   deletePhones() {
     console.log(this.selectedPhones);

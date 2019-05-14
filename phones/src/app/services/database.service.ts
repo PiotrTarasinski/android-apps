@@ -37,14 +37,6 @@ export class DatabaseService {
     }).catch(error => console.log(error));
   }
 
-  // seedDatabase() {
-  //   const sql = 'CREATE TABLE IF NOT EXISTS phones (id INTEGER PRIMARY KEY, producent VARCHAR(32), model VARCHAR(32), wersja VARCHAR(24), www VARCHAR(128))';
-  //   this.database.executeSql(sql).then(() => {
-  //     this.loadPhones();
-  //     this.dbReady.next(true);
-  //   }).catch(error => console.log(error));
-  // }
-
   loadPhones() {
     return this.database.executeSql('SELECT * FROM phones', []).then(data => {
       let phones: phone[] = [];
