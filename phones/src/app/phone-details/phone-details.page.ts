@@ -15,7 +15,7 @@ export class PhoneDetailsPage implements OnInit {
   phoneForm: FormGroup;
   phone: phone;
   editMode: boolean;
-  urlRegex = '^(http:\/\/www\.|https:\/\/www\.|http:\/\/|https:\/\/)?[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$';
+  urlRegex = /^(?:http(s)?:\/\/)?[\w.-]+(?:\.[\w\.-]+)+[\w\-\._~:/?#[\]@!\$&'\(\)\*\+,;=.]+$/;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -59,14 +59,11 @@ export class PhoneDetailsPage implements OnInit {
   }
 
   editPhone() {
-    let phone: phone = {
-      id: null,
-      producent: this.phoneForm.get('producent').value,
-      model: this.phoneForm.get('model').value,
-      wersja: this.phoneForm.get('wersja').value,
-      www: this.phoneForm.get('www').value
-    };
-    this.databaseService.editPhone(phone);
+    this.phone.producent = this.phoneForm.get('producent').value;
+    this.phone.model = this.phoneForm.get('model').value;
+    this.phone.wersja = this.phoneForm.get('wersja').value;
+    this.phone.www = this.phoneForm.get('www').value;
+    this.databaseService.editPhone(this.phone);
     this.navController.navigateBack('home');
   }
 

@@ -17,11 +17,11 @@ export class DatabaseService {
 
   constructor(private platform: Platform, private sqlitePorter: SQLitePorter, private sqlite: SQLite) {
     this.platform.ready().then(() => {
-      let connection = this.sqlite.create({
+      this.sqlite.create({
         name: 'phones.db',
         location: 'default',
-      });
-      connection.then((db: SQLiteObject) => {
+      })
+      .then((db: SQLiteObject) => {
         this.database = db;
         this.seedDatabase();
       });
@@ -66,10 +66,7 @@ export class DatabaseService {
 
   editPhone(phone: phone) {
     const data = [phone.producent, phone.model, phone.wersja, phone.www, phone.id];
-    return this.database.executeSql('UPDATE phones SET producent = ?, model = ?, wersja = ?, www = ? WHERE id = ?', [data])
-      .then(() => {
-        this.loadPhones();
-      });
+    return this.database.executeSql('UPDATE phones SET producent = ?, model = ?, wersja = ?, www = ? WHERE id = ?', [data]);
   }
 
   deletePhones(phones: phone[]) {
@@ -77,10 +74,11 @@ export class DatabaseService {
     phones.forEach( (phone) => {
       phoneIds.push(phone.id);
     });
-    const phonesToRemove = phoneIds.toString();
-    console.log(phonesToRemove);
 
-    return this.database.executeSql('DELETE phones WHERE id IN (?)', [phonesToRemove])
+    const phonesToRemove = phoneIds.toString();
+    const query = 'DELETE FROM phones WHERE id IN (' + phonesToRemove + ')';
+
+    return this.database.executeSql(query, [])
       .then(() => {
         this.loadPhones();
       });

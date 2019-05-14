@@ -26,38 +26,17 @@ export class HomePage {
       if (ready) {
         this.databaseService.getPhones().subscribe(phones => {
           this.phoneList = phones;
-          console.log("phones changed: ",phones);
-        });
-      } else {
-        this.databaseService.getPhones().subscribe(phones => {
-          this.phoneList = phones;
-          console.log("phones changed kurwa: ", phones);
         });
       }
     });
   }
 
-  // getDatabaseState() {
-  //   this.databaseService.getDatabaseState().subscribe(dbReady => {
-  //     this.dbReady = dbReady;
-  //     console.log('is db ready', dbReady);
-  //     // if (dbReady) this.getPhoneList();
-  //     this.getPhoneList();
-  //   });
-  // }
-  
-  // getPhoneList() {
-  //   console.log('is phones fetching', true);
-  //   this.databaseService.getPhones().subscribe(phones => {
-  //     this.phoneList = phones;
-  //     console.log('phone list', phones);
-  //   });
-  // }
-
   deletePhones() {
-    console.log(this.selectedPhones);
-    this.databaseService.deletePhones(this.selectedPhones);
-    this.selectMode = false;
+    this.databaseService.deletePhones(this.selectedPhones)
+      .then(() => {
+        this.selectedPhones = [];
+        this.selectMode = false;
+      });
   }
 
   addPhone() {
