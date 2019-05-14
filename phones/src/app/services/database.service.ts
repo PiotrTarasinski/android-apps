@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
-import { Observable, of, from, BehaviorSubject } from 'rxjs';
-import { phone } from '../models/phone';
+import { SQLiteObject, SQLite } from '@ionic-native/sqlite/ngx';
+import { BehaviorSubject, Observable, of } from 'rxjs';
 import { Platform } from '@ionic/angular';
+import { SQLitePorter } from '@ionic-native/sqlite-porter/ngx';
+import { phone } from '../models/phone';
 
 @Injectable({
   providedIn: 'root'
@@ -14,31 +15,35 @@ export class DatabaseService {
 
   phones = new BehaviorSubject<phone[]>([]);
 
-  constructor(private platform: Platform, private sqlite: SQLite) {
+  constructor(private platform: Platform, private sqlitePorter: SQLitePorter, private sqlite: SQLite) {
     this.platform.ready().then(() => {
-      const connection = this.sqlite.create({
+      let connection = this.sqlite.create({
         name: 'phones.db',
         location: 'default',
       });
       connection.then((db: SQLiteObject) => {
         this.database = db;
-        const sql = 'CREATE TABLE IF NOT EXISTS phones (id INTEGER PRIMARY KEY, producent VARCHAR(32), model VARCHAR(32), wersja VARCHAR(24), www VARCHAR(128))';
-        db.executeSql(sql).then(() => {
-          this.loadPhones();
-          this.dbReady.next(true);
-          console.log("db created");
-        }).catch(error => console.log(error));
+        this.seedDatabase();
       });
     });
   }
 
   seedDatabase() {
-    const sql = 'CREATE TABLE IF NOT EXISTS phones (id INTEGER PRIMARY KEY, producent VARCHAR(32), model VARCHAR(32), wersja VARCHAR(24), www VARCHAR(128))';
-    this.database.executeSql(sql).then(() => {
+    let sql = 'CREATE TABLE IF NOT EXISTS phones (id INTEGER PRIMARY KEY AUTOINCREMENT, producent TEXT, model TEXT, wersja TEXT, www TEXT);'
+
+    this.sqlitePorter.importSqlToDb(this.database, sql).then(() => {
       this.loadPhones();
       this.dbReady.next(true);
     }).catch(error => console.log(error));
   }
+
+  // seedDatabase() {
+  //   const sql = 'CREATE TABLE IF NOT EXISTS phones (id INTEGER PRIMARY KEY, producent VARCHAR(32), model VARCHAR(32), wersja VARCHAR(24), www VARCHAR(128))';
+  //   this.database.executeSql(sql).then(() => {
+  //     this.loadPhones();
+  //     this.dbReady.next(true);
+  //   }).catch(error => console.log(error));
+  // }
 
   loadPhones() {
     return this.database.executeSql('SELECT * FROM phones', []).then(data => {
