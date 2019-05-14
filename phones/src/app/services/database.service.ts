@@ -22,18 +22,21 @@ export class DatabaseService {
       });
       connection.then((db: SQLiteObject) => {
         this.database = db;
-        this.seedDatabase();
+        const sql = 'CREATE TABLE IF NOT EXISTS phones (id INTEGER PRIMARY KEY, producent VARCHAR(32), model VARCHAR(32), wersja VARCHAR(24), www VARCHAR(128))';
+        db.executeSql(sql).then(() => {
+          this.loadPhones();
+          this.dbReady.next(true);
+          console.log("db created");
+        }).catch(error => console.log(error));
       });
     });
   }
 
   seedDatabase() {
     const sql = 'CREATE TABLE IF NOT EXISTS phones (id INTEGER PRIMARY KEY, producent VARCHAR(32), model VARCHAR(32), wersja VARCHAR(24), www VARCHAR(128))';
-
     this.database.executeSql(sql).then(() => {
       this.loadPhones();
       this.dbReady.next(true);
-      console.log("db created ",this.dbReady);
     }).catch(error => console.log(error));
   }
 
