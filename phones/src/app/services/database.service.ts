@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SQLite, SQLiteObject } from '@ionic-native/sqlite/ngx';
-import { Observable, of, from } from 'rxjs';
+import { Observable, of, from, BehaviorSubject } from 'rxjs';
 import { phone } from '../models/phone';
 import { Platform } from '@ionic/angular';
 
@@ -9,46 +9,88 @@ import { Platform } from '@ionic/angular';
 })
 export class DatabaseService {
 
-  sqlstorage: SQLiteObject = null;
+  private database: SQLiteObject;
+  private dbReady: BehaviorSubject<boolean> = new BehaviorSubject(false);
 
-  constructor(private sqlite: SQLite, private platform: Platform) {
-    // platform.ready().then(() => {
-    //   this.sqlite.create({
-    //     name: 'phones.db',
-    //     location: 'default'
-    //   }).then((db: SQLiteObject) => {
-    //     this.sqlstorage = db;
-    //     db.executeSql('create table if not exists phones(id INTEGER PRIMARY KEY, producent VARCHAR(32), model VARCHAR(32), wersja VARCHAR(24), www VARCHAR(128))', []);
-    //   });
-    // });
+  phones = new BehaviorSubject<phone[]>([]);
+
+  constructor(private platform: Platform, private sqlite: SQLite) {
+    this.platform.ready().then(() => {
+      const connection = this.sqlite.create({
+        name: 'phones.db',
+        location: 'default',
+      });
+      connection.then((db: SQLiteObject) => {
+        this.database = db;
+        this.seedDatabase();
+      });
+    });
   }
 
-  getPhoneList(): Observable<phone[]> {
-    const phones: phone[] = [];
-    phones.push({ id: 1, producent: 'elo', model: 'nara', wersja: '11', www: 'siema' });
-    phones.push({ id: 1, producent: 'elo', model: 'nara', wersja: '11', www: 'siema' });
-    phones.push({ id: 1, producent: 'elo', model: 'nara', wersja: '11', www: 'siema' });
-    // const query = 'SELECT * FROM phones WHERE 1';
-    // this.sqlstorage.executeSql(query, [])
-    //   .then((res) => {
-    //     res.map((phone) => {
-    //       phones.push({ id: phone.id, producent: phone.producent, model: phone.model, wersja: phone.wersja, www: phone.www });
-    //     });
-    //   });
-    return of(phones);
+  seedDatabase() {
+    const sql = 'CREATE TABLE IF NOT EXISTS phones (id INTEGER PRIMARY KEY, producent VARCHAR(32), model VARCHAR(32), wersja VARCHAR(24), www VARCHAR(128))';
+
+    this.database.executeSql(sql).then(() => {
+      this.loadPhones();
+      this.dbReady.next(true);
+      console.log("db created ",this.dbReady);
+    }).catch(error => console.log(error));
+  }
+
+  loadPhones() {
+    return this.database.executeSql('SELECT * FROM phones', []).then(data => {
+      let phones: phone[] = [];
+
+      if (data.rows.length > 0) {
+        for (let i = 0; i < data.rows.length; i++) {
+          phones.push({
+            id: data.rows.item(i).id,
+            producent: data.rows.item(i).producent,
+            model: data.rows.item(i).model,
+            wersja: data.rows.item(i).wersja,
+            www: data.rows.item(i).www
+          });
+        }
+      }
+      this.phones.next(phones);
+    });
   }
 
   addPhone(phone: phone) {
-    console.log(phone);
-    // const query = 'INSERT INTO phones (id, producent, model, wersja, www) VALUES (?, ?, ?, ?, ?)';
-    // this.sqlstorage.executeSql(query, [null, phone.producent, phone.model, phone.wersja, phone.www]);
+    const data = [phone.producent, phone.model, phone.wersja, phone.www];
+    return this.database.executeSql('INSERT INTO phones (producent, model, wersja, www) VALUES (?, ?, ?, ?)', data)
+      .then(() => {
+        this.loadPhones();
+      });
   }
 
   editPhone(phone: phone) {
-    console.log(phone);
+    const data = [phone.producent, phone.model, phone.wersja, phone.www, phone.id];
+    return this.database.executeSql('UPDATE phones SET producent = ?, model = ?, wersja = ?, www = ? WHERE id = ?', [data])
+      .then(() => {
+        this.loadPhones();
+      });
   }
 
   deletePhones(phones: phone[]) {
-    console.log(phones);
+    const phoneIds = [];
+    phones.forEach( (phone) => {
+      phoneIds.push(phone.id);
+    });
+    const phonesToRemove = phoneIds.toString();
+    console.log(phonesToRemove);
+
+    return this.database.executeSql('DELETE phones WHERE id IN (?)', [phonesToRemove])
+      .then(() => {
+        this.loadPhones();
+      });
+  }
+
+  getDatabaseState() {
+    return this.dbReady.asObservable();
+  }
+
+  getPhones() {
+    return this.phones.asObservable();
   }
 }

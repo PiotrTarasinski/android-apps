@@ -13,6 +13,7 @@ export class HomePage implements OnInit {
   selectMode: boolean = false;
   phoneList: phone[] = [];
   selectedPhones: phone[] = [];
+  dbReady: boolean = false;
 
   constructor(
     private navController: NavController,
@@ -22,15 +23,36 @@ export class HomePage implements OnInit {
 
   ngOnInit() {
     this.selectMode = false;
-    this.getPhoneList();
+    this.getDatabaseState();
   }
 
+  getDatabaseState() {
+    this.databaseService.getDatabaseState().subscribe(dbReady => {
+      this.dbReady = dbReady;
+      console.log('is db ready', dbReady);
+      // if (dbReady) this.getPhoneList();
+      this.getPhoneList();
+    });
+  }
+  
   getPhoneList() {
-    this.databaseService.getPhoneList().subscribe(phoneList => (this.phoneList = phoneList));
+    // if (this.dbReady) {
+      //   this.databaseService.getPhones().subscribe(phoneList => (this.phoneList = phoneList));
+      //   console.log('baza zaladowana')
+      // } else {
+        //   console.log('baza niegotowa');
+        // }
+    console.log('is phones fetching', true);
+    this.databaseService.getPhones().subscribe(phones => {
+      this.phoneList = phones;
+      console.log('phone list', phones);
+    });
   }
 
   deletePhones() {
+    console.log(this.selectedPhones);
     this.databaseService.deletePhones(this.selectedPhones);
+    this.selectMode = false;
   }
 
   addPhone() {
